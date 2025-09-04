@@ -63,7 +63,6 @@ const Sidebar = () => {
             onClick={() => joinRoom(room)}
           >
             <span className="room-name"># {room}</span>
-            {/* <span className="room-users">8</span> */}
           </div>
         ))}
       </div>
