@@ -21,7 +21,7 @@ const Sidebar = () => {
   };
 
   socket.on("roomHistory", (history: string[]) => {
-    addMessage(currentRoom, ""); //empty last messages
+    addMessage(currentRoom, ""); 
     history.forEach((msg) => addMessage(currentRoom, msg));
   });
 
