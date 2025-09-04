@@ -4,6 +4,10 @@
 EspressoChat is a **real-time chat application** built with **React** and **Socket.IO**. 
 It allows users to join multiple chat rooms and communicate instantly.
 
+## Demo Video
+[Click here to watch the demo video](https://vimeo.com/1115755279)
+
+
 ## Features 
 - Real-time messaging using Socket.IO
 - Multiple chat rooms with dynamic room creation
