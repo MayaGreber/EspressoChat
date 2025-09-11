@@ -4,9 +4,13 @@ import { ChatProvider } from "./context/chat/ChatContext";
 import Login from "./components/login/Login";
 import Chat from "./components/chat/Chat";
 
-function App() {
+type User = {
+  name: string;
+  uniqueId: string;
+};
 
-  const [user, setUser] = useState<{ name: string } | null>(null);
+function App() {
+  const [user, setUser] = useState<User | null>(null);
 
   return (
    <>
@@ -14,7 +18,7 @@ function App() {
         <Login onLogin={setUser} />
       ) : (
         <SocketProvider>
-          <ChatProvider>
+          <ChatProvider user={user}>
             <Chat user={user} />
           </ChatProvider>
         </SocketProvider>

@@ -3,7 +3,11 @@ import { useChat } from "../../../context/chat/useChat";
 import { useSocket } from "../../../context/socket/useSocket";
 import "./Sidebar.scss";
 
-const Sidebar = () => {
+type SidebarProps = {
+  user: { name: string; uniqueId: string };
+};
+
+const Sidebar = ({ user }: SidebarProps) => {
   const [rooms, setRooms] = useState([
     "General",
     "Development",
@@ -13,17 +17,12 @@ const Sidebar = () => {
 
   const [newRoomName, setNewRoomName] = useState("");
   const socket = useSocket();
-  const { currentRoom, setCurrentRoom, addMessage } = useChat();
+  const { currentRoom, setCurrentRoom } = useChat();
 
   const joinRoom = (roomName: string) => {
     setCurrentRoom(roomName);
-    socket.emit("joinRoom", roomName);
+    socket.emit("joinRoom", { roomName, user });
   };
-
-  socket.on("roomHistory", (history: string[]) => {
-    addMessage(currentRoom, ""); 
-    history.forEach((msg) => addMessage(currentRoom, msg));
-  });
 
   const handleNewRoom = () => {
     if (!newRoomName) return;
@@ -36,9 +35,9 @@ const Sidebar = () => {
     <div className="sidebar">
       <div className="sidebar-header">
         <div className="user-info">
-          <div className="avatar">JD</div>
+          <div className="avatar">{user.name.slice(0, 2).toUpperCase()}</div>
           <div>
-            <div className="user-name">John Doe</div>
+            <div className="user-name">{user.name}</div>
             <div className="online-status">● Online</div>
           </div>
         </div>

@@ -5,17 +5,21 @@ import { useChat } from "../../context/chat/useChat";
 const MessageInput = () => {
   const [text, setText] = useState("");
   const socket = useSocket();
-  const { addMessage, currentRoom } = useChat();
+  const { currentRoom } = useChat();
 
-  const sendMessage = () => {
-    if (!text || !currentRoom) return;
-    socket.emit("message", { roomName: currentRoom, text });
-    addMessage(currentRoom, text);
+  const sendMessage = () => {    
+    if (!text || !currentRoom) {
+      return;
+    }
+
+    socket.emit("message", { roomName: currentRoom, text });    
     setText("");
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") sendMessage();
+    if (e.key === "Enter") {
+      sendMessage();
+    }
   };
 
   return (
@@ -27,8 +31,7 @@ const MessageInput = () => {
           placeholder="Type your message..."
           value={text}
           onChange={(e) => setText(e.target.value)}
-          onKeyPress={handleKeyPress}
-        />
+          onKeyPress={handleKeyPress}/>
 
         <button className="send-btn" onClick={sendMessage}>
           &#8679;

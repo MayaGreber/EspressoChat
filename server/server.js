@@ -3,12 +3,11 @@ const http = require("http");
 const { Server } = require("socket.io");
 
 const app = express();
-
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173", // הכתובת של הפרונט
+    origin: "http://localhost:5173",
     methods: ["GET", "POST"],
   },
 });
@@ -18,34 +17,66 @@ app.get("/", (req, res) => {
 });
 
 const inMemoryRooms = {};
+const connectedUsers = {}; 
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
-
-  socket.on("joinRoom", (roomName) => {
+  socket.on("joinRoom", ({ roomName, user }) => {
     socket.join(roomName);
-    console.log(`${socket.id} joined room ${roomName}`);
+    
+    connectedUsers[socket.id] = {
+      name: user.name,
+      uniqueId: user.uniqueId,
+      currentRoom: roomName
+    };
 
     const history = inMemoryRooms[roomName] || [];
-    socket.emit("roomHistory", history)
+    socket.emit("roomHistory", { roomName, history });
+
+    socket.to(roomName).emit("userJoined", {
+      userName: user.name,
+      uniqueId: user.uniqueId
+    });
   });
   
   socket.on("message", ({ roomName, text }) => {
-    if (!roomName || !text) return;
+    if (!roomName || !text) {
+      return;
+    }
+
+    const userInfo = connectedUsers[socket.id];
+    if (!userInfo) {
+      return;
+    }
 
     if (!inMemoryRooms[roomName]) inMemoryRooms[roomName] = [];
-    inMemoryRooms[roomName].push(text);
 
-    io.to(roomName).emit("message", text);
-    console.log(`Message in room ${roomName}:`, text);
+    const messageData = {
+      text,
+      sender: userInfo.name,
+      uniqueId: userInfo.uniqueId,
+      timestamp: new Date().toISOString(),
+    };
+
+
+    inMemoryRooms[roomName].push(messageData);
+
+    const dataToEmit = {
+      roomName,
+      ...messageData
+    };
+
+    io.to(roomName).emit("message", dataToEmit);
+
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+    const userInfo = connectedUsers[socket.id];
+    if (userInfo) {
+      delete connectedUsers[socket.id];
+    }
   });
 });
 
 const PORT = 3000;
 server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
 });
